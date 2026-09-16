@@ -1,0 +1,92 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                   String          @id @default(uuid())
+  email                String          @unique
+  passwordHash         String
+  name                 String
+  initials             String
+  avatarColor          String          @default("bg-indigo-100 text-indigo-700")
+  course               String
+  verifiedEmail        Boolean         @default(true)
+  profileVerified      Boolean         @default(false)
+  trustScore           Int             @default(80)
+  onTimeReturnsCount   Int             @default(0)
+  totalReturnsCount    Int             @default(0)
+  avgConditionRating   Float           @default(5.0)
+  memberSince          String          @default("Sep 2025")
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  items                Item[]          @relation("LenderItems")
+  borrowRequestsMade   BorrowRequest[] @relation("BorrowerRequests")
+  borrowRequestsReceived BorrowRequest[] @relation("LenderRequests")
+  activities           Activity[]
+}
+
+model Item {
+  id                   String          @id @default(uuid())
+  name                 String
+  category             String
+  condition            String
+  description          String
+  rules                String          // JSON array of strings
+  campus               String
+  distanceKm           Float           @default(0.5)
+  maxDurationDays      Int             @default(7)
+  suggestedDurationDays Int            @default(3)
+  depositEuros         Int             @default(0)
+  available            Boolean         @default(true)
+  availableFrom        String          @default("2026-09-16T00:00:00Z")
+  pickupMethod         String
+  rating               Float           @default(5.0)
+  borrowCount          Int             @default(0)
+  imageSeed            String          @default("default")
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  lenderId             String
+  lender               User            @relation("LenderItems", fields: [lenderId], references: [id], onDelete: Cascade)
+
+  borrowRequests       BorrowRequest[]
+}
+
+model BorrowRequest {
+  id                   String          @id @default(uuid())
+  requestDate          String
+  startDate            String
+  endDate              String
+  message              String
+  status               String          @default("pending") // pending, approved, active, returned, rejected
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  itemId               String
+  item                 Item            @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  borrowerId           String
+  borrower             User            @relation("BorrowerRequests", fields: [borrowerId], references: [id], onDelete: Cascade)
+
+  lenderId             String
+  lender               User            @relation("LenderRequests", fields: [lenderId], references: [id], onDelete: Cascade)
+}
+
+model Activity {
+  id                   String          @id @default(uuid())
+  type                 String          // borrow, lend, request, review, system
+  title                String?
+  description          String
+  timestamp            String
+  isRead               Boolean         @default(false)
+  createdAt            DateTime        @default(now())
+
+  userId               String
+  user                 User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

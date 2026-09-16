@@ -13,7 +13,7 @@ import { Search, Filter, X, SlidersHorizontal, RotateCcw } from 'lucide-react';
 import { Category, Campus, SortOption } from '../types';
 
 export const ExploreView: React.FC = () => {
-  const { filters, setFilters } = useAppContext();
+  const { filters, setFilters, itemsList } = useAppContext();
   const [sort, setSort] = useState<SortOption>('nearest');
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const [displayedItemsCount, setDisplayedItemsCount] = useState(8);
@@ -37,7 +37,7 @@ export const ExploreView: React.FC = () => {
     return () => clearTimeout(timer);
   }, [filters, sort]);
 
-  const filteredItems = filterAndSortItems(items, filters, sort, lenders);
+  const filteredItems = filterAndSortItems(itemsList, filters, sort, lenders);
   const visibleItems = filteredItems.slice(0, displayedItemsCount);
 
   const campuses: Campus[] = [

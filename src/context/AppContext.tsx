@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { User, FilterState, View } from '../types';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { User, FilterState, View, Item, BorrowRequest } from '../types';
 import { currentUser as mockCurrentUser } from '../data/users';
+import { items as defaultMockItems } from '../data/items';
+import { api } from '../lib/api';
 
 export interface ToastMessage {
   id: string;
@@ -16,10 +18,16 @@ interface AppContextType {
   selectedItemId: string | null;
   setSelectedItemId: (id: string | null) => void;
 
+  // Catalog State
+  itemsList: Item[];
+  refreshItems: () => Promise<void>;
+  addItemToList: (item: Item) => void;
+
   // Auth
   user: User | null;
   isLoggedIn: boolean;
   login: (customUser?: User) => void;
+  loginWithCredentials: (email: string, pass: string) => Promise<boolean>;
   logout: () => void;
 
   // Modals
@@ -55,6 +63,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentView, setCurrentView] = useState<View>('landing');
   const [selectedItemId, setSelectedItemId] = useState<string | null>('i_1');
+  const [itemsList, setItemsList] = useState<Item[]>(defaultMockItems);
 
   const [user, setUser] = useState<User | null>(mockCurrentUser); // logged in as Alex Moreau by default for demo
   const [isAuthModalOpen, setAuthModalOpen] = useState(false);
@@ -64,6 +73,25 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [filters, setFilters] = useState<FilterState>(defaultFilters);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
+  const refreshItems = async () => {
+    try {
+      const serverItems = await api.getItems();
+      if (serverItems && serverItems.length > 0) {
+        setItemsList(serverItems);
+      }
+    } catch (e) {
+      // Graceful fallback to rich offline dataset if backend is offline
+    }
+  };
+
+  useEffect(() => {
+    refreshItems();
+  }, []);
+
+  const addItemToList = (newItem: Item) => {
+    setItemsList((prev) => [newItem, ...prev]);
+  };
+
   const navigate = (view: View, itemId?: string) => {
     setCurrentView(view);
     if (itemId !== undefined) {
@@ -72,14 +100,29 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const loginWithCredentials = async (email: string, pass: string): Promise<boolean> => {
+    try {
+      const { user: serverUser } = await api.login(email, pass);
+      setUser(serverUser);
+      setAuthModalOpen(false);
+      addToast(`Welcome back, ${serverUser.name}!`, 'success');
+      return true;
+    } catch (err: any) {
+      addToast(err.message || 'Login failed', 'error');
+      return false;
+    }
+  };
+
   const login = (customUser?: User) => {
     setUser(customUser || mockCurrentUser);
     setAuthModalOpen(false);
   };
 
   const logout = () => {
+    api.clearToken();
     setUser(null);
     navigate('landing');
+    addToast('You have been logged out.', 'info');
   };
 
   const addToast = (message: string, type: 'success' | 'error' | 'info' = 'success', duration = 4000) => {
@@ -98,9 +141,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         navigate,
         selectedItemId,
         setSelectedItemId,
+        itemsList,
+        refreshItems,
+        addItemToList,
         user,
         isLoggedIn: !!user,
         login,
+        loginWithCredentials,
         logout,
         isAuthModalOpen,
         setAuthModalOpen,
@@ -122,7 +169,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
 export const useAppContext = () => {
   const context = useContext(AppContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useAppContext must be used within an AppProvider');
   }
   return context;

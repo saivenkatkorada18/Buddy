@@ -5,6 +5,7 @@ import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
 import { useAppContext } from '../../context/AppContext';
 import { Item, Category, Campus } from '../../types';
+import { api } from '../../lib/api';
 import { ImagePlus, CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface ListItemModalProps {
@@ -18,7 +19,7 @@ export const ListItemModal: React.FC<ListItemModalProps> = ({
   onClose,
   onItemCreated,
 }) => {
-  const { addToast, user } = useAppContext();
+  const { addToast, user, addItemToList } = useAppContext();
   const [name, setName] = useState('');
   const [category, setCategory] = useState<Category>('calculators');
   const [condition, setCondition] = useState<'New' | 'Like new' | 'Good' | 'Fair'>('Like new');
@@ -59,42 +60,56 @@ export const ListItemModal: React.FC<ListItemModalProps> = ({
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      const newItem: Item = {
+    const parsedRules = rules ? rules.split('\n').filter(Boolean) : ['Handle with reasonable student care'];
+    const payload = {
+      name,
+      category,
+      condition,
+      description,
+      rules: parsedRules,
+      campus,
+      maxDurationDays: parseInt(maxDurationDays),
+      suggestedDurationDays: Math.min(3, parseInt(maxDurationDays)),
+      depositEuros: parseInt(deposit),
+      pickupMethod,
+      imageSeed: `${category}-${Date.now().toString(36)}`,
+    };
+
+    try {
+      const createdItem = await api.createItem(payload);
+      addItemToList(createdItem);
+      if (onItemCreated) {
+        onItemCreated(createdItem);
+      }
+      addToast(`"${name}" is now listed in your campus directory!`, 'success');
+      handleClose();
+    } catch (err: any) {
+      // Fallback local creation if token not present
+      const fallbackItem: Item = {
         id: `i_${Date.now()}`,
-        name,
-        category,
-        condition,
-        description,
-        rules: rules ? rules.split('\n').filter(Boolean) : ['Handle with reasonable student care'],
-        campus,
+        ...payload,
         distanceKm: 0.3,
-        maxDurationDays: parseInt(maxDurationDays),
-        suggestedDurationDays: Math.min(3, parseInt(maxDurationDays)),
-        depositEuros: parseInt(deposit),
         available: true,
         availableFrom: new Date().toISOString(),
-        pickupMethod,
         rating: 5.0,
         borrowCount: 0,
-        lenderId: user?.id || 'l_alex',
+        lenderId: user?.id || 'u_alex',
         addedAt: new Date().toISOString(),
-        imageSeed: `custom-${Date.now()}`,
       };
-
+      addItemToList(fallbackItem);
       if (onItemCreated) {
-        onItemCreated(newItem);
+        onItemCreated(fallbackItem);
       }
-
-      setIsSubmitting(false);
+      addToast(`"${name}" is listed!`, 'success');
       handleClose();
-      addToast(`"${name}" is now listed in your campus directory!`, 'success');
-    }, 500);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
