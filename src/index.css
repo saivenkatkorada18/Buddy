@@ -1,0 +1,184 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+:root {
+  /* Color Tokens */
+  --color-ink: #1C1917;
+  --color-indigo-900: #1E1B4B;
+  --color-indigo-700: #312E81;
+  --color-indigo-600: #4338CA;
+  --color-indigo-100: #E0E7FF;
+  --color-indigo-50: #EEF2FF;
+  --color-teal-600: #0D9488;
+  --color-teal-100: #CCFBF1;
+  --color-amber-500: #F59E0B;
+  --color-amber-100: #FEF3C7;
+  --color-violet-500: #8B5CF6;
+  --color-cream: #FDFBF7;
+  --color-paper: #FFFFFF;
+  --color-muted: #57534E;
+  --color-line: #E7E5E4;
+
+  /* Motion Timing & Curves */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --dur-instant: 120ms;
+  --dur-quick: 180ms;
+  --dur-base: 280ms;
+  --dur-slow: 520ms;
+
+  /* Shadows (Ink-tinted) */
+  --shadow-rest: 0 1px 2px rgba(28, 25, 23, 0.05), 0 4px 12px -2px rgba(28, 25, 23, 0.04);
+  --shadow-raise: 0 2px 4px rgba(28, 25, 23, 0.06), 0 12px 28px -6px rgba(28, 25, 23, 0.12);
+  --shadow-float: 0 4px 8px rgba(28, 25, 23, 0.08), 0 24px 48px -12px rgba(28, 25, 23, 0.20);
+}
+
+@theme {
+  --color-ink: #1C1917;
+  --color-indigo-900: #1E1B4B;
+  --color-indigo-700: #312E81;
+  --color-indigo-600: #4338CA;
+  --color-indigo-100: #E0E7FF;
+  --color-indigo-50: #EEF2FF;
+  --color-teal-600: #0D9488;
+  --color-teal-100: #CCFBF1;
+  --color-amber-500: #F59E0B;
+  --color-amber-100: #FEF3C7;
+  --color-violet-500: #8B5CF6;
+  --color-cream: #FDFBF7;
+  --color-paper: #FFFFFF;
+  --color-muted: #57534E;
+  --color-line: #E7E5E4;
+
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+/* Base resets & typography */
+html {
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  letter-spacing: -0.025em;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+/* Accessible Focus Ring Floor */
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-cream), 0 0 0 4px var(--color-indigo-600);
+}
+
+/* Subtle Dotted Pattern Texture */
+.bg-grid-pattern {
+  background-image: radial-gradient(var(--color-line) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.bg-grid-dark {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Shadow Utility Classes */
+.shadow-rest {
+  box-shadow: var(--shadow-rest);
+}
+
+.shadow-raise {
+  box-shadow: var(--shadow-raise);
+}
+
+.shadow-float {
+  box-shadow: var(--shadow-float);
+}
+
+/* Accordion Smooth Height Transition via CSS Grid */
+.accordion-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--dur-base) var(--ease-out-soft);
+}
+
+.accordion-content.open {
+  grid-template-rows: 1fr;
+}
+
+.accordion-inner {
+  overflow: hidden;
+}
+
+/* Keyframe Animations */
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(0.98); }
+}
+
+@keyframes loop-spin-once {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes card-deal-in {
+  0% { opacity: 0; transform: translateY(18px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes shimmer-sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes form-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.animate-card-deal {
+  animation: card-deal-in 450ms var(--ease-spring) forwards;
+}
+
+.animate-loop-success {
+  animation: loop-spin-once 650ms var(--ease-spring) forwards;
+}
+
+.animate-shake {
+  animation: form-shake 200ms ease-in-out;
+}
+
+.shimmer-mask {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-mask::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.45) 50%, transparent 100%);
+  animation: shimmer-sweep 1.5s infinite;
+}
+
+/* Non-Negotiable Reduced Motion Guard */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}
