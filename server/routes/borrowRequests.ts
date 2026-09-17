@@ -1,10 +1,73 @@
-import { Router, Response } from 'express';
+import { Router, Response, Request } from 'express';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
 import { authenticateToken, AuthRequest } from '../middleware/auth';
-import { sendDueDateReminderEmail, sendBorrowConfirmationEmail } from '../lib/email';
+import {
+  sendDueDateReminderEmail,
+  sendBorrowConfirmationEmail,
+  sendBorrowRequestMessageEmail,
+} from '../lib/email';
 
 const router = Router();
+
+const sendMessageEmailSchema = z.object({
+  toEmail: z.string().email(),
+  recipientName: z.string().default('Lender'),
+  requesterName: z.string().default('Student Member'),
+  requesterEmail: z.string().email().default('student@university.edu'),
+  itemName: z.string(),
+  message: z.string(),
+  startDate: z.string().default(''),
+  endDate: z.string().default(''),
+  pickupLocation: z.string().default('Campus'),
+  depositText: z.string().default('Free'),
+});
+
+// POST /api/borrow-requests/send-message-email (public or protected)
+router.post('/send-message-email', async (req: Request, res: Response) => {
+  try {
+    const parsed = sendMessageEmailSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.issues[0].message });
+    }
+
+    const {
+      toEmail,
+      recipientName,
+      requesterName,
+      requesterEmail,
+      itemName,
+      message,
+      startDate,
+      endDate,
+      pickupLocation,
+      depositText,
+    } = parsed.data;
+
+    const emailResult = await sendBorrowRequestMessageEmail(
+      toEmail,
+      recipientName,
+      requesterName,
+      requesterEmail,
+      itemName,
+      message,
+      startDate,
+      endDate,
+      pickupLocation,
+      depositText
+    );
+
+    return res.json({
+      success: true,
+      message: `Borrow request email successfully dispatched to ${toEmail}!`,
+      delivery: emailResult,
+    });
+  } catch (error: any) {
+    console.error('Send borrow request email error:', error);
+    return res.status(500).json({ error: 'Failed to send borrow request email.' });
+  }
+});
+
 
 
 const createRequestSchema = z.object({

@@ -199,8 +199,27 @@ class ApiClient {
       method: 'POST',
     });
   }
+
+  async sendBorrowRequestMessageEmail(data: {
+    toEmail: string;
+    recipientName?: string;
+    requesterName?: string;
+    requesterEmail?: string;
+    itemName: string;
+    message: string;
+    startDate?: string;
+    endDate?: string;
+    pickupLocation?: string;
+    depositText?: string;
+  }): Promise<{ success: boolean; message: string; delivery?: any }> {
+    return this.request('/borrow-requests/send-message-email', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
 }
 
 export const api = new ApiClient();
+
 
 
