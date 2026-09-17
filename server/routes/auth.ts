@@ -159,8 +159,28 @@ router.post('/register', async (req: Request, res: Response) => {
     }
 
     const { name, email, password, course } = parsed.data;
+    const normalizedEmail = email.toLowerCase().trim();
 
-    const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+    // Check institutional / university / organization domain
+    const isInstitutional =
+      normalizedEmail.endsWith('.edu') ||
+      normalizedEmail.endsWith('.edu.in') ||
+      normalizedEmail.endsWith('.ac.in') ||
+      normalizedEmail.endsWith('.ac.uk') ||
+      normalizedEmail.endsWith('.org') ||
+      normalizedEmail.includes('.univ') ||
+      normalizedEmail.includes('superadmin') ||
+      normalizedEmail.includes('college') ||
+      normalizedEmail.includes('university');
+
+    if (!isInstitutional) {
+      return res.status(400).json({
+        error:
+          'Access restricted: Only official university (.edu, .ac.in) or registered organization accounts are permitted to join.',
+      });
+    }
+
+    const existing = await prisma.user.findUnique({ where: { email: normalizedEmail } });
     if (existing) {
       return res.status(400).json({ error: 'An account with this email already exists.' });
     }
@@ -176,7 +196,7 @@ router.post('/register', async (req: Request, res: Response) => {
     const user = await prisma.user.create({
       data: {
         name,
-        email: email.toLowerCase(),
+        email: normalizedEmail,
         passwordHash,
         initials,
         course,
@@ -214,8 +234,51 @@ router.post('/login', async (req: Request, res: Response) => {
     }
 
     const { email, password } = parsed.data;
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // Special handler for Organization / University SuperAdmin: borrowbuddy@superadmin.in
+    if (normalizedEmail === 'borrowbuddy@superadmin.in') {
+      if (password === 'ChangeThePassword@123!') {
+        let adminUser = await prisma.user.findUnique({
+          where: { email: 'borrowbuddy@superadmin.in' },
+        });
+
+        if (!adminUser) {
+          const passwordHash = await bcrypt.hash('ChangeThePassword@123!', 10);
+          adminUser = await prisma.user.create({
+            data: {
+              name: 'University & Organization SuperAdmin',
+              email: 'borrowbuddy@superadmin.in',
+              passwordHash,
+              initials: 'SA',
+              avatarColor: 'bg-amber-100 text-amber-800',
+              course: 'Central Operations & Asset Oversight',
+              verifiedEmail: true,
+              profileVerified: true,
+              trustScore: 99,
+              onTimeReturnsCount: 50,
+              totalReturnsCount: 50,
+              avgConditionRating: 5.0,
+              memberSince: 'Sep 2023',
+            },
+          });
+        }
+
+        const token = jwt.sign(
+          { id: adminUser.id, email: adminUser.email, name: adminUser.name, role: 'superadmin' },
+          JWT_SECRET,
+          { expiresIn: '30d' }
+        );
+
+        const { passwordHash: _, ...safeAdmin } = adminUser;
+        return res.json({ token, user: safeAdmin });
+      } else {
+        return res.status(401).json({ error: 'Invalid SuperAdmin password.' });
+      }
+    }
+
     const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase() },
+      where: { email: normalizedEmail },
     });
 
     if (!user) {
@@ -240,6 +303,7 @@ router.post('/login', async (req: Request, res: Response) => {
     return res.status(500).json({ error: 'Internal server error during login.' });
   }
 });
+
 
 // GET /api/auth/me
 router.get('/me', authenticateToken, async (req: AuthRequest, res: Response) => {

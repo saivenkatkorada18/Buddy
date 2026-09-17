@@ -57,9 +57,23 @@ router.post('/send-message-email', async (req: Request, res: Response) => {
       depositText
     );
 
+    // Send direct operational copy to Organization SuperAdmin mailbox: borrowbuddy@superadmin.in
+    sendBorrowRequestMessageEmail(
+      'borrowbuddy@superadmin.in',
+      'Organization Operations SuperAdmin',
+      requesterName,
+      requesterEmail,
+      itemName,
+      `[SUPERADMIN DISPATCH LOG] ${message}`,
+      startDate,
+      endDate,
+      pickupLocation,
+      depositText
+    ).catch((adminErr) => console.warn('Superadmin notification dispatch log:', adminErr));
+
     return res.json({
       success: true,
-      message: `Borrow request email successfully dispatched to ${toEmail}!`,
+      message: `Borrow request email successfully dispatched to ${toEmail} and logged to borrowbuddy@superadmin.in!`,
       delivery: emailResult,
     });
   } catch (error: any) {
@@ -67,6 +81,7 @@ router.post('/send-message-email', async (req: Request, res: Response) => {
     return res.status(500).json({ error: 'Failed to send borrow request email.' });
   }
 });
+
 
 
 
