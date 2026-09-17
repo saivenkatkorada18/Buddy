@@ -250,6 +250,86 @@ class ApiClient {
   async invokeSupabaseEngine(): Promise<any> {
     return this.request('/admin/invoke-supabase', { method: 'POST' });
   }
+
+  // --- Organization Team Portal APIs ---
+  async orgSignup(data: {
+    name: string;
+    email: string;
+    password: string;
+    department?: string;
+    organizationName?: string;
+    orgPasscode?: string;
+  }): Promise<{ user: any; token: string }> {
+    const res = await this.request<{ user: any; token: string }>('/org/signup', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    if (res.token) {
+      this.setToken(res.token);
+    }
+    return res;
+  }
+
+  async orgLogin(email: string, password: string): Promise<{ user: any; token: string }> {
+    const res = await this.request<{ user: any; token: string }>('/org/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+    if (res.token) {
+      this.setToken(res.token);
+    }
+    return res;
+  }
+
+  async getOrgStats(): Promise<{
+    pendingRequests: number;
+    approvedRequests: number;
+    activeLoans: number;
+    totalInventory: number;
+  }> {
+    return this.request('/org/stats');
+  }
+
+  async getOrgRequests(): Promise<any[]> {
+    return this.request('/org/requests');
+  }
+
+  async acceptOrgRequest(
+    id: string,
+    options?: {
+      pickupLocation?: string;
+      approvalNotes?: string;
+      orgName?: string;
+      orgContactEmail?: string;
+    }
+  ): Promise<{ message: string; request: any; emailDelivery: any }> {
+    return this.request(`/org/requests/${id}/accept`, {
+      method: 'POST',
+      body: JSON.stringify(options || {}),
+    });
+  }
+
+  async rejectOrgRequest(
+    id: string,
+    reason?: string,
+    orgName?: string
+  ): Promise<{ message: string; request: any }> {
+    return this.request(`/org/requests/${id}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ reason, orgName }),
+    });
+  }
+
+  async sendOrgMessageToCustomer(
+    id: string,
+    messageText: string,
+    orgName?: string
+  ): Promise<{ message: string; emailDelivery: any }> {
+    return this.request(`/org/requests/${id}/message`, {
+      method: 'POST',
+      body: JSON.stringify({ messageText, orgName }),
+    });
+  }
 }
 
 export const api = new ApiClient();

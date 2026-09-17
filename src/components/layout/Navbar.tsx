@@ -3,7 +3,7 @@ import { useAppContext } from '../../context/AppContext';
 import { Logo } from '../brand/Logo';
 import { Button } from '../ui/Button';
 import { Avatar } from '../ui/Avatar';
-import { Menu, X, PlusCircle, LayoutDashboard, Shield, Compass, HelpCircle, CreditCard, Database } from 'lucide-react';
+import { Menu, X, PlusCircle, LayoutDashboard, Shield, Compass, HelpCircle, CreditCard, Database, Building2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useFocusTrap } from '../../lib/motion';
 
@@ -83,6 +83,22 @@ export const Navbar: React.FC = () => {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-2.5">
+            {/* Organization Team Portal Button */}
+            <button
+              onClick={() => navigate('org-portal')}
+              className={cn(
+                'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-heading font-bold transition-all shadow-xs border',
+                currentView === 'org-portal'
+                  ? 'bg-indigo-950 text-indigo-200 border-indigo-400 shadow-md shadow-indigo-500/20'
+                  : 'bg-slate-950 hover:bg-indigo-950 text-indigo-300 border-slate-800'
+              )}
+              title="Organization Team Portal & Customer Inquiries"
+            >
+              <Building2 size={14} className="text-indigo-400" />
+              <span>Org Team</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
+            </button>
+
             {/* SuperAdmin Database Portal Button */}
             <button
               onClick={() => navigate('admin-database')}
@@ -216,6 +232,22 @@ export const Navbar: React.FC = () => {
                     <span>{link.label}</span>
                   </button>
                 ))}
+
+                <button
+                  onClick={() => {
+                    navigate('org-portal');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={cn(
+                    'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left font-heading font-semibold text-base transition-colors',
+                    currentView === 'org-portal'
+                      ? 'bg-indigo-50 text-indigo-900 border border-indigo-200'
+                      : 'text-indigo-700 bg-indigo-50/50 hover:bg-indigo-100/50'
+                  )}
+                >
+                  <Building2 size={18} className="text-indigo-600" />
+                  <span>Organization Team Portal</span>
+                </button>
 
                 <button
                   onClick={() => {

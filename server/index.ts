@@ -7,6 +7,7 @@ import borrowRequestRoutes from './routes/borrowRequests';
 import userRoutes from './routes/users';
 import paymentRoutes from './routes/payments';
 import adminRoutes from './routes/admin';
+import orgRoutes from './routes/org';
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ app.use('/api/borrow-requests', borrowRequestRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/org', orgRoutes);
 
 
 
