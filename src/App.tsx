@@ -14,7 +14,6 @@ import { HowItWorksView } from './views/HowItWorksView';
 import { TrustSafetyView } from './views/TrustSafetyView';
 import { DashboardView } from './views/DashboardView';
 import { AdminDatabaseView } from './views/AdminDatabaseView';
-import { OrgPortalView } from './views/OrgPortalView';
 import { NotFoundView } from './views/NotFoundView';
 
 const AppContent: React.FC = () => {
@@ -38,8 +37,6 @@ const AppContent: React.FC = () => {
       case 'admin':
       case 'admin-database':
         return <AdminDatabaseView />;
-      case 'org-portal':
-        return <OrgPortalView />;
       case 'not-found':
       default:
         return <NotFoundView />;

@@ -60,7 +60,6 @@ export interface Item {
 
 export interface User extends Lender {
   email?: string;
-  role?: string;
 }
 
 
@@ -127,52 +126,5 @@ export type View =
   | 'dashboard'
   | 'admin'
   | 'admin-database'
-  | 'org-portal'
   | 'not-found';
-
-export interface OrgStaff {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  organizationName?: string;
-  department?: string;
-  campus?: string;
-}
-
-export interface OrgCustomerRequest {
-  id: string;
-  itemId: string;
-  borrowerId: string;
-  startDate: string;
-  endDate: string;
-  status: 'pending' | 'approved' | 'active' | 'completed' | 'rejected' | 'cancelled';
-  message?: string;
-  createdAt: string;
-  borrower: {
-    id: string;
-    name: string;
-    email: string;
-    course?: string;
-    campus?: string;
-    avatarUrl?: string;
-    trustScore?: number;
-    profileVerified?: boolean;
-  };
-  item: {
-    id: string;
-    name: string;
-    category: string;
-    campus: string;
-    dailyRate: number;
-    depositAmount: number;
-    imageSeed?: string;
-    pickupLocation?: string;
-    owner?: {
-      id: string;
-      name: string;
-      email: string;
-    };
-  };
-}
 
