@@ -4,6 +4,7 @@ import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { Toast } from './components/ui/Toast';
 import { AuthModal } from './components/auth/AuthModal';
+import { RazorpayCheckoutModal } from './components/payment/RazorpayCheckoutModal';
 
 // Views
 import { LandingView } from './views/LandingView';
@@ -15,7 +16,7 @@ import { DashboardView } from './views/DashboardView';
 import { NotFoundView } from './views/NotFoundView';
 
 const AppContent: React.FC = () => {
-  const { currentView, toasts, removeToast } = useAppContext();
+  const { currentView, toasts, removeToast, isPaymentModalOpen, closePaymentModal, paymentModalOptions } = useAppContext();
 
   const renderView = () => {
     switch (currentView) {
@@ -50,6 +51,12 @@ const AppContent: React.FC = () => {
 
       {/* Global Modals */}
       <AuthModal />
+      <RazorpayCheckoutModal
+        isOpen={isPaymentModalOpen}
+        onClose={closePaymentModal}
+        initialOptions={paymentModalOptions}
+      />
+
 
       {/* Toast Notification Container */}
       <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none w-full max-w-sm px-4 sm:px-0 sm:right-6 sm:bottom-6">

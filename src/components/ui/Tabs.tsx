@@ -4,8 +4,9 @@ import { cn } from '../../lib/utils';
 interface Tab {
   id: string;
   label: string;
-  count?: number;
+  count?: number | string;
 }
+
 
 interface TabsProps {
   tabs: Tab[];

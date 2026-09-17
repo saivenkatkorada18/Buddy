@@ -21,12 +21,14 @@ import {
   CheckCircle2,
   AlertCircle,
   HelpCircle,
+  CreditCard,
 } from 'lucide-react';
 
 export const ItemDetailView: React.FC = () => {
-  const { selectedItemId, navigate, isLoggedIn, setAuthModalOpen, addToast } = useAppContext();
+  const { selectedItemId, navigate, isLoggedIn, setAuthModalOpen, addToast, openPaymentModal } = useAppContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeThumbnailIndex, setActiveThumbnailIndex] = useState(0);
+
 
   const item = items.find(i => i.id === selectedItemId) || items[0];
   const lender = (item.lenderId in lenders ? lenders[item.lenderId] : Object.values(lenders)[0]) || Object.values(lenders)[0];
@@ -198,7 +200,7 @@ export const ItemDetailView: React.FC = () => {
             </div>
 
             {/* Primary Action Button */}
-            <div className="pt-4 border-t border-line">
+            <div className="pt-4 border-t border-line space-y-2.5">
               <Button
                 size="lg"
                 className="w-full"
@@ -209,7 +211,25 @@ export const ItemDetailView: React.FC = () => {
               >
                 Request to borrow item
               </Button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  openPaymentModal({
+                    amount: item.depositEuros > 0 ? item.depositEuros * 90 : 150,
+                    itemName: item.name,
+                    itemId: item.id,
+                    purpose: `Security Deposit for ${item.name}`,
+                  })
+                }
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-heading font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/80 transition-all shadow-xs"
+              >
+                <CreditCard size={15} className="text-amber-600" />
+                <span>Pay Demo Security Deposit with Razorpay</span>
+                <span className="bg-amber-200/80 text-amber-950 px-1.5 py-0.2 rounded text-[10px]">Test Mode</span>
+              </button>
             </div>
+
 
           </div>
 

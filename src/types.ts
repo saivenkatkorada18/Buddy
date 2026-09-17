@@ -58,7 +58,10 @@ export interface Item {
   imageSeed: string; // drives generated artwork
 }
 
-export interface User extends Lender {}
+export interface User extends Lender {
+  email?: string;
+}
+
 
 export interface BorrowRequest {
   id: string;

@@ -138,6 +138,47 @@ class ApiClient {
   async getUserById(id: string): Promise<User> {
     return this.request<User>(`/users/${id}`);
   }
+
+  // --- Razorpay Payment Endpoints ---
+  async getPaymentConfig(): Promise<{ keyId: string; currency: string; businessName: string }> {
+    return this.request<{ keyId: string; currency: string; businessName: string }>('/payments/config');
+  }
+
+  async createPaymentOrder(data: {
+    amount: number;
+    currency?: string;
+    receipt?: string;
+    notes?: Record<string, any>;
+  }): Promise<{ success: boolean; order: any; keyId: string }> {
+    return this.request<{ success: boolean; order: any; keyId: string }>('/payments/create-order', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async verifyPayment(data: {
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature: string;
+    amount?: number;
+    purpose?: string;
+    itemId?: string;
+  }): Promise<{
+    success: boolean;
+    message: string;
+    paymentId: string;
+    orderId: string;
+    verifiedAt: string;
+    amount: number;
+    currency: string;
+    purpose: string;
+  }> {
+    return this.request('/payments/verify-payment', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
 }
 
 export const api = new ApiClient();
+

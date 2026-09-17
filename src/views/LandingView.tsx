@@ -24,13 +24,16 @@ import {
   Calendar,
   Sparkles,
   MapPin,
-  Clock
+  Clock,
+  CreditCard,
+  Zap,
 } from 'lucide-react';
 import { Category } from '../types';
 import { useInViewOnce, useCountUp } from '../lib/motion';
 
 export const LandingView: React.FC = () => {
-  const { navigate, setFilters, setAuthModalOpen, setListItemModalOpen, isLoggedIn } = useAppContext();
+  const { navigate, setFilters, setAuthModalOpen, setListItemModalOpen, isLoggedIn, openPaymentModal } = useAppContext();
+
 
   // Impact Count-Up on first view
   const [impactRef, impactInView] = useInViewOnce<HTMLElement>(0.2);
@@ -314,7 +317,65 @@ export const LandingView: React.FC = () => {
         </div>
       </section>
 
+      {/* 5.5 RAZORPAY INSTANT CAMPUS ESCROW & DEMO PAYMENTS */}
+      <section className="py-20 bg-gradient-to-b from-paper to-cream border-b border-line">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="bg-paper rounded-3xl p-8 sm:p-12 border border-line shadow-raise flex flex-col lg:flex-row items-center justify-between gap-8 relative overflow-hidden">
+            {/* Background ambient decoration */}
+            <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-indigo-100/50 blur-3xl pointer-events-none" />
+            <div className="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-amber-100/50 blur-3xl pointer-events-none" />
+
+            <div className="max-w-2xl space-y-4 relative z-10">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-xs font-heading font-bold text-amber-900">
+                <CreditCard size={15} className="text-amber-600" />
+                <span>Powered by Razorpay Payments</span>
+                <span className="bg-amber-200 text-amber-950 text-[10px] px-1.5 py-0.5 rounded-full">Test Gateway</span>
+              </div>
+
+              <h2 className="text-3xl sm:text-4xl font-heading font-extrabold text-ink tracking-tight">
+                Zero friction security deposits & instant escrow.
+              </h2>
+
+              <p className="text-muted text-sm sm:text-base leading-relaxed">
+                Experience seamless micro-transactions for refundable campus deposits, student passes, and item protection waivers — securely verified with HMAC-SHA256 signatures.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                <div className="p-3 bg-cream rounded-2xl border border-line text-xs">
+                  <div className="font-heading font-bold text-ink">100% Refundable</div>
+                  <div className="text-muted text-[11px] mt-0.5">Automated return release</div>
+                </div>
+                <div className="p-3 bg-cream rounded-2xl border border-line text-xs">
+                  <div className="font-heading font-bold text-ink">Cards & UPI</div>
+                  <div className="text-muted text-[11px] mt-0.5">Instant checkout popup</div>
+                </div>
+                <div className="p-3 bg-cream rounded-2xl border border-line text-xs">
+                  <div className="font-heading font-bold text-ink">Trust Score Boost</div>
+                  <div className="text-muted text-[11px] mt-0.5">+5 pts for verified deposits</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="w-full lg:w-auto shrink-0 flex flex-col sm:flex-row lg:flex-col gap-3 relative z-10">
+              <Button
+                size="lg"
+                className="gap-2 justify-center shadow-sm"
+                onClick={() => openPaymentModal({ purpose: 'Landing Page Interactive Demo' })}
+              >
+                <CreditCard size={18} />
+                <span>Test Razorpay Checkout</span>
+                <ArrowRight size={16} />
+              </Button>
+              <div className="text-center text-[11px] text-muted">
+                Test API Key: <code className="font-mono text-ink">rzp_test_Tcy4izS0j1853r</code>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 6. TRUST SCORE CENTERPIECE (Indigo-900 Dark Inversion Block) */}
+
       <section className="py-24 bg-indigo-900 text-white border-b border-indigo-800 bg-grid-dark">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">

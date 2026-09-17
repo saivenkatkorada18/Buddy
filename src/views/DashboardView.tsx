@@ -21,12 +21,15 @@ import {
   Sparkles,
   ShieldCheck,
   RotateCw,
+  CreditCard,
+  Zap,
 } from 'lucide-react';
 import { Item } from '../types';
 
 export const DashboardView: React.FC = () => {
-  const { user, setListItemModalOpen, isListItemModalOpen, addToast, setAuthModalOpen } = useAppContext();
+  const { user, setListItemModalOpen, isListItemModalOpen, addToast, setAuthModalOpen, openPaymentModal } = useAppContext();
   const [activeTab, setActiveTab] = useState('borrowing');
+
   const [localItems, setLocalItems] = useState<Item[]>(mockItems);
   const [returnedItemCelebration, setReturnedItemCelebration] = useState(false);
   const [isItemReturned, setIsItemReturned] = useState(false);
@@ -196,11 +199,13 @@ export const DashboardView: React.FC = () => {
               { id: 'borrowing', label: 'Items I am Borrowing', count: isItemReturned ? 0 : 1 },
               { id: 'listed', label: 'My Listed Items', count: myListedItems.length },
               { id: 'requests', label: 'Borrow Requests', count: requests.length },
+              { id: 'payments', label: 'Razorpay & Deposits', count: 'Active' },
               { id: 'activity', label: 'Recent Activity', count: recentActivity.length },
             ]}
             activeTab={activeTab}
             onChange={setActiveTab}
           />
+
 
           {/* Tab 1: Borrowing */}
           {activeTab === 'borrowing' && (
@@ -284,8 +289,105 @@ export const DashboardView: React.FC = () => {
             </div>
           )}
 
-          {/* Tab 4: Activity */}
+          {/* Tab 4: Payments & Deposits */}
+          {activeTab === 'payments' && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-paper p-5 rounded-2xl border border-line shadow-xs space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-muted">Refundable Escrow</span>
+                    <Badge variant="success">Secured</Badge>
+                  </div>
+                  <div className="text-2xl font-heading font-extrabold text-teal-700">₹250.00</div>
+                  <p className="text-[11px] text-muted">Held safely in Razorpay Escrow until item return verification.</p>
+                </div>
+
+                <div className="bg-paper p-5 rounded-2xl border border-line shadow-xs space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-muted">Campus Pass</span>
+                    <Badge variant="neutral">Active</Badge>
+                  </div>
+                  <div className="text-2xl font-heading font-extrabold text-indigo-900">Verified Student</div>
+                  <p className="text-[11px] text-muted">Zero fee borrowing tier with 100% verified student badge.</p>
+                </div>
+
+                <div className="bg-amber-50 p-5 rounded-2xl border border-amber-200 shadow-xs space-y-2 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-amber-900">Razorpay Test Gateway</span>
+                      <span className="text-[10px] bg-amber-200 text-amber-950 font-bold px-2 py-0.5 rounded-full">Test Mode</span>
+                    </div>
+                    <div className="text-xs text-amber-800 mt-1 font-mono">Key: rzp_test_Tcy4izS0j1853r</div>
+                  </div>
+                  <Button
+                    size="sm"
+                    className="w-full gap-2 bg-amber-600 hover:bg-amber-700 text-white"
+                    onClick={() => openPaymentModal({ purpose: 'Student Dashboard Demo Payment' })}
+                  >
+                    <CreditCard size={15} />
+                    <span>Launch Test Payment</span>
+                  </Button>
+                </div>
+              </div>
+
+              {/* Transactions Ledger */}
+              <div className="bg-paper rounded-3xl p-6 sm:p-8 border border-line shadow-rest space-y-4">
+                <div className="flex items-center justify-between border-b border-line pb-4">
+                  <div>
+                    <h3 className="font-heading font-bold text-base text-ink">Recent Transactions & Deposits</h3>
+                    <p className="text-xs text-muted">Logged transactions processed through the Razorpay test environment</p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => openPaymentModal({ purpose: 'Quick Deposit Top-Up' })}
+                    className="gap-1.5"
+                  >
+                    <CreditCard size={14} />
+                    <span>Pay Deposit</span>
+                  </Button>
+                </div>
+
+                <div className="divide-y divide-line/60 text-xs">
+                  <div className="py-3.5 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-bold">
+                        ₹
+                      </div>
+                      <div>
+                        <div className="font-heading font-bold text-ink">Chemistry Lab Coat — Security Deposit</div>
+                        <div className="text-muted text-[11px]">Pay ID: pay_demo_98a7sd • HMAC Verified</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-heading font-bold text-teal-700">+₹250.00</div>
+                      <Badge variant="success">In Escrow</Badge>
+                    </div>
+                  </div>
+
+                  <div className="py-3.5 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">
+                        ★
+                      </div>
+                      <div>
+                        <div className="font-heading font-bold text-ink">BorrowBuddy Semester Pass</div>
+                        <div className="text-muted text-[11px]">Pay ID: pay_demo_pass_42 • Student Rate</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-heading font-bold text-ink">₹99.00</div>
+                      <Badge variant="neutral">Completed</Badge>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Tab 5: Activity */}
           {activeTab === 'activity' && (
+
             <div className="bg-paper rounded-3xl p-6 sm:p-8 border border-line shadow-rest divide-y divide-line/60">
               {recentActivity.map(act => (
                 <div key={act.id} className="py-4 first:pt-0 last:pb-0 flex items-center justify-between gap-4">

@@ -3,12 +3,12 @@ import { useAppContext } from '../../context/AppContext';
 import { Logo } from '../brand/Logo';
 import { Button } from '../ui/Button';
 import { Avatar } from '../ui/Avatar';
-import { Menu, X, PlusCircle, LayoutDashboard, Shield, Compass, HelpCircle } from 'lucide-react';
+import { Menu, X, PlusCircle, LayoutDashboard, Shield, Compass, HelpCircle, CreditCard } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useFocusTrap } from '../../lib/motion';
 
 export const Navbar: React.FC = () => {
-  const { currentView, navigate, isLoggedIn, user, setAuthModalOpen, setListItemModalOpen } = useAppContext();
+  const { currentView, navigate, isLoggedIn, user, setAuthModalOpen, setListItemModalOpen, openPaymentModal } = useAppContext();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
@@ -82,6 +82,17 @@ export const Navbar: React.FC = () => {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-3">
+            {/* Demo Payment Trigger Button */}
+            <button
+              onClick={() => openPaymentModal({ purpose: 'Campus Escrow & Student Pass Demo' })}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-heading font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/80 transition-all shadow-xs hover:scale-102"
+              title="Test Razorpay Payment Gateway"
+            >
+              <CreditCard size={14} className="text-amber-600" />
+              <span>Demo Pay</span>
+              <span className="bg-amber-200/90 text-amber-950 px-1.5 py-0.2 rounded-md text-[10px]">Test</span>
+            </button>
+
             <Button
               variant="secondary"
               size="sm"
@@ -97,6 +108,7 @@ export const Navbar: React.FC = () => {
               <PlusCircle size={16} />
               <span>List an item</span>
             </Button>
+
 
             {isLoggedIn && user ? (
               <div
@@ -210,6 +222,18 @@ export const Navbar: React.FC = () => {
 
             {/* Mobile Footer CTAs */}
             <div className="pt-6 border-t border-line space-y-3">
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  openPaymentModal({ purpose: 'Campus Escrow & Student Pass Demo' });
+                }}
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-heading font-bold bg-amber-50 text-amber-900 border border-amber-200"
+              >
+                <CreditCard size={18} className="text-amber-600" />
+                <span>Test Razorpay Payment</span>
+                <span className="bg-amber-200/90 text-amber-950 px-1.5 py-0.5 rounded text-[10px]">Test</span>
+              </button>
+
               <Button
                 variant="secondary"
                 className="w-full justify-center"
@@ -222,6 +246,7 @@ export const Navbar: React.FC = () => {
                 <PlusCircle size={18} className="mr-2" />
                 <span>List an item</span>
               </Button>
+
 
               {!isLoggedIn ? (
                 <Button
