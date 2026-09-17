@@ -83,22 +83,6 @@ export const Navbar: React.FC = () => {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-2.5">
-            {/* SuperAdmin Database Portal Button */}
-            <button
-              onClick={() => navigate('admin-database')}
-              className={cn(
-                'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-heading font-bold transition-all shadow-xs border',
-                currentView === 'admin-database' || currentView === 'admin'
-                  ? 'bg-slate-950 text-amber-300 border-amber-400/50 shadow-md shadow-amber-500/10'
-                  : 'bg-slate-900 hover:bg-slate-800 text-amber-300 border-slate-700'
-              )}
-              title="SuperAdmin Database & Supabase Cloud Engine"
-            >
-              <Database size={14} className="text-amber-400" />
-              <span>Supabase DB</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            </button>
-
             {/* Demo Payment Trigger Button */}
             <button
               onClick={() => openPaymentModal({ purpose: 'Campus Escrow & Student Pass Demo' })}
@@ -216,22 +200,6 @@ export const Navbar: React.FC = () => {
                     <span>{link.label}</span>
                   </button>
                 ))}
-
-                <button
-                  onClick={() => {
-                    navigate('admin-database');
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className={cn(
-                    'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left font-heading font-semibold text-base transition-colors',
-                    currentView === 'admin-database'
-                      ? 'bg-amber-50 text-amber-900 border border-amber-200'
-                      : 'text-amber-700 bg-amber-50/50 hover:bg-amber-100/50'
-                  )}
-                >
-                  <Database size={18} className="text-amber-600" />
-                  <span>Supabase Database Engine</span>
-                </button>
 
                 {isLoggedIn && (
                   <button
