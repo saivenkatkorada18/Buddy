@@ -72,16 +72,16 @@ export const DashboardView: React.FC = () => {
   const handleSendTestDueDateEmail = async (itemName: string = 'Casio Scientific Calculator FX-991EX', campus: string = 'Main Library') => {
     setIsSendingEmailReminder(true);
     try {
-      const email = user?.email || 'student@university.edu';
-      // Attempt backend reminder endpoint or direct feedback
+      const email = user?.email || 'saivenkatkorada18@gmail.com';
       await api.sendDueDateReminder('req_demo_active').catch(() => {});
-      addToast(`📧 Resend Email Sent: "Reminder: Your ${itemName} loan is due tomorrow at ${campus}!" sent to ${email}`, 'success');
+      addToast(`📧 Resend Email Dispatched: "Reminder: Your ${itemName} loan is due tomorrow at ${campus}!" sent to ${email}`, 'success');
     } catch (err: any) {
       addToast('Due date reminder email dispatched via Resend!', 'success');
     } finally {
       setIsSendingEmailReminder(false);
     }
   };
+
 
   const handleItemCreated = (newItem: Item) => {
     setLocalItems(prev => [newItem, ...prev]);

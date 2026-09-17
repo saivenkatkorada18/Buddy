@@ -26,7 +26,7 @@ export const BorrowRequestModal: React.FC<BorrowRequestModalProps> = ({
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [message, setMessage] = useState('');
-  const [contactEmail, setContactEmail] = useState(user?.email || 'student@university.edu');
+  const [contactEmail, setContactEmail] = useState(user?.email || 'saivenkatkorada18@gmail.com');
   const [agreed, setAgreed] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -38,11 +38,12 @@ export const BorrowRequestModal: React.FC<BorrowRequestModalProps> = ({
     setStartDate('');
     setEndDate('');
     setMessage('');
-    setContactEmail(user?.email || 'student@university.edu');
+    setContactEmail(user?.email || 'saivenkatkorada18@gmail.com');
     setAgreed(false);
     setErrors({});
     setIsSuccess(false);
     setIsSubmitting(false);
+
     setSentEmailInfo(null);
   };
 
