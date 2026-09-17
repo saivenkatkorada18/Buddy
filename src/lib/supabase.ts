@@ -3,14 +3,27 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl =
   import.meta.env.VITE_SUPABASE_URL || 'https://oDbkFlxO5iP2EmdQiZklJw.supabase.co';
 const supabaseAnonKey =
-  import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+  import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_oDbkFlxO5iP2EmdQiZklJw_w1B1rSFc';
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-  },
-});
+function createSafeSupabaseClient() {
+  const url = supabaseUrl || 'https://oDbkFlxO5iP2EmdQiZklJw.supabase.co';
+  const key = supabaseAnonKey || 'sb_publishable_oDbkFlxO5iP2EmdQiZklJw_w1B1rSFc';
+  try {
+    return createClient(url, key, {
+      auth: {
+        persistSession: typeof window !== 'undefined',
+        autoRefreshToken: typeof window !== 'undefined',
+      },
+    });
+  } catch (err) {
+    console.warn('Supabase initialization fallback triggered:', err);
+    return createClient('https://placeholder.supabase.co', 'sb_publishable_placeholder_key', {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+  }
+}
+
+export const supabase = createSafeSupabaseClient();
 
 export interface SupabaseHealth {
   connected: boolean;
