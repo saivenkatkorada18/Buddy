@@ -2,8 +2,10 @@ import { Router, Response } from 'express';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
 import { authenticateToken, AuthRequest } from '../middleware/auth';
+import { sendDueDateReminderEmail, sendBorrowConfirmationEmail } from '../lib/email';
 
 const router = Router();
+
 
 const createRequestSchema = z.object({
   itemId: z.string(),
@@ -121,10 +123,69 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
       },
     });
 
+    // Send confirmation email asynchronously via Resend
+    if (newRequest.borrower?.email) {
+      sendBorrowConfirmationEmail(
+        newRequest.borrower.email,
+        newRequest.borrower.name,
+        item.name,
+        newRequest.lender.name,
+        startDate,
+        endDate,
+        item.campus
+      ).catch((err) => console.error('Borrow confirmation email failed:', err));
+    }
+
     return res.status(201).json(newRequest);
   } catch (error) {
     console.error('Create borrow request error:', error);
     return res.status(500).json({ error: 'Failed to create borrow request.' });
+  }
+});
+
+// POST /api/borrow-requests/:id/send-reminder (protected)
+// Real automatic/manual due date reminder email trigger
+router.post('/:id/send-reminder', authenticateToken, async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
+
+    const { id } = req.params;
+
+    const request = await prisma.borrowRequest.findUnique({
+      where: { id },
+      include: {
+        item: true,
+        borrower: true,
+        lender: true,
+      },
+    });
+
+    if (!request) {
+      return res.status(404).json({ error: 'Borrow loan record not found.' });
+    }
+
+    const recipientEmail = request.borrower.email;
+    const borrowerName = request.borrower.name;
+    const itemName = request.item.name;
+    const campus = request.item.campus;
+    const dueDate = request.endDate;
+
+    const result = await sendDueDateReminderEmail(
+      recipientEmail,
+      borrowerName,
+      itemName,
+      campus,
+      dueDate
+    );
+
+    return res.json({
+      success: true,
+      message: `Due date reminder email sent to ${recipientEmail}!`,
+      delivery: result,
+    });
+  } catch (error: any) {
+    console.error('Send reminder error:', error);
+    return res.status(500).json({ error: 'Failed to dispatch due date reminder email.' });
   }
 });
 
@@ -138,6 +199,7 @@ router.patch('/:id/status', authenticateToken, async (req: AuthRequest, res: Res
     if (!parsed.success) {
       return res.status(400).json({ error: parsed.error.issues[0].message });
     }
+
 
     const { status } = parsed.data;
 

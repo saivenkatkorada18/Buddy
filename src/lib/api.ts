@@ -178,7 +178,29 @@ class ApiClient {
       body: JSON.stringify(data),
     });
   }
+
+  // --- Email & Notification Endpoints (Resend) ---
+  async sendOtp(email: string, name?: string): Promise<{ success: boolean; message: string; demoCode?: string; emailDelivery?: any }> {
+    return this.request('/auth/send-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email, name }),
+    });
+  }
+
+  async verifyOtp(email: string, code: string): Promise<{ verified: boolean; message?: string }> {
+    return this.request('/auth/verify-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email, code }),
+    });
+  }
+
+  async sendDueDateReminder(borrowRequestId: string): Promise<{ success: boolean; message: string; delivery?: any }> {
+    return this.request(`/borrow-requests/${borrowRequestId}/send-reminder`, {
+      method: 'POST',
+    });
+  }
 }
 
 export const api = new ApiClient();
+
 

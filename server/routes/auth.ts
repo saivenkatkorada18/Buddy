@@ -20,6 +20,136 @@ const loginSchema = z.object({
   password: z.string().min(1, 'Password is required'),
 });
 
+import { sendVerificationOtpEmail } from '../lib/email';
+
+const otpRequestSchema = z.object({
+  email: z.string().email('Valid university email required'),
+  name: z.string().optional(),
+});
+
+const otpVerifySchema = z.object({
+  email: z.string().email('Valid university email required'),
+  code: z.string().length(6, 'Verification code must be 6 digits'),
+});
+
+// POST /api/auth/send-otp
+router.post('/send-otp', async (req: Request, res: Response) => {
+  try {
+    const parsed = otpRequestSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.issues[0].message });
+    }
+
+    const { email, name } = parsed.data;
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // Generate random 6 digit numeric code
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    // Delete existing OTPs for this email in SQLite
+    try {
+      await (prisma as any).otpVerification.deleteMany({
+        where: { email: normalizedEmail },
+      });
+      await (prisma as any).otpVerification.create({
+        data: {
+          email: normalizedEmail,
+          code: otpCode,
+          expiresAt,
+        },
+      });
+    } catch (dbErr) {
+      // Fallback direct raw insert if needed
+      console.warn('Prisma table insert warning:', dbErr);
+      await prisma.$executeRawUnsafe(
+        `INSERT INTO OtpVerification (id, email, code, expiresAt, createdAt) VALUES (?, ?, ?, ?, ?)`,
+        `otp_${Date.now()}`,
+        normalizedEmail,
+        otpCode,
+        expiresAt.toISOString(),
+        new Date().toISOString()
+      );
+    }
+
+    // Send real email via Resend
+    const emailResult = await sendVerificationOtpEmail(
+      normalizedEmail,
+      name || 'Student',
+      otpCode
+    );
+
+    return res.json({
+      success: true,
+      message: `Verification code sent to ${normalizedEmail}`,
+      emailDelivery: emailResult,
+      // For local testing demo when sandbox domain restrictions apply:
+      demoCode: process.env.NODE_ENV !== 'production' ? otpCode : undefined,
+    });
+  } catch (error: any) {
+    console.error('Send OTP error:', error);
+    return res.status(500).json({ error: 'Failed to send OTP verification email.' });
+  }
+});
+
+// POST /api/auth/verify-otp
+router.post('/verify-otp', async (req: Request, res: Response) => {
+  try {
+    const parsed = otpVerifySchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.issues[0].message });
+    }
+
+    const { email, code } = parsed.data;
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // Check OTP in DB
+    let record: any = null;
+    try {
+      record = await (prisma as any).otpVerification.findFirst({
+        where: {
+          email: normalizedEmail,
+          code,
+          expiresAt: { gt: new Date() },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+    } catch {
+      const rows: any[] = await prisma.$queryRawUnsafe(
+        `SELECT * FROM OtpVerification WHERE email = ? AND code = ? AND expiresAt > ? ORDER BY createdAt DESC LIMIT 1`,
+        normalizedEmail,
+        code,
+        new Date().toISOString()
+      );
+      record = rows[0];
+    }
+
+    if (!record) {
+      return res.status(400).json({
+        verified: false,
+        error: 'Invalid or expired 6-digit verification code. Please request a new code.',
+      });
+    }
+
+    // Clean up used OTP
+    try {
+      await (prisma as any).otpVerification.deleteMany({
+        where: { email: normalizedEmail },
+      });
+    } catch {
+      await prisma.$executeRawUnsafe(`DELETE FROM OtpVerification WHERE email = ?`, normalizedEmail);
+    }
+
+    return res.json({
+      verified: true,
+      message: 'Student email verified successfully!',
+    });
+  } catch (error) {
+    console.error('Verify OTP error:', error);
+    return res.status(500).json({ error: 'Failed to verify OTP code.' });
+  }
+});
+
 // POST /api/auth/register
 router.post('/register', async (req: Request, res: Response) => {
   try {
@@ -51,7 +181,7 @@ router.post('/register', async (req: Request, res: Response) => {
         initials,
         course,
         avatarColor: 'bg-indigo-100 text-indigo-700',
-        verifiedEmail: email.endsWith('.edu') || email.includes('ac.') || email.includes('univ'),
+        verifiedEmail: true,
         profileVerified: true,
         trustScore: 85,
         onTimeReturnsCount: 0,
@@ -73,6 +203,7 @@ router.post('/register', async (req: Request, res: Response) => {
     return res.status(500).json({ error: 'Failed to register account.' });
   }
 });
+
 
 // POST /api/auth/login
 router.post('/login', async (req: Request, res: Response) => {

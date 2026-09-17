@@ -90,3 +90,14 @@ model Activity {
   userId               String
   user                 User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+model OtpVerification {
+  id                   String          @id @default(uuid())
+  email                String
+  code                 String
+  expiresAt            DateTime
+  createdAt            DateTime        @default(now())
+
+  @@index([email])
+}
+

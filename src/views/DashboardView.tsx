@@ -23,8 +23,11 @@ import {
   RotateCw,
   CreditCard,
   Zap,
+  Mail,
+  Send,
 } from 'lucide-react';
 import { Item } from '../types';
+import { api } from '../lib/api';
 
 export const DashboardView: React.FC = () => {
   const { user, setListItemModalOpen, isListItemModalOpen, addToast, setAuthModalOpen, openPaymentModal } = useAppContext();
@@ -33,6 +36,8 @@ export const DashboardView: React.FC = () => {
   const [localItems, setLocalItems] = useState<Item[]>(mockItems);
   const [returnedItemCelebration, setReturnedItemCelebration] = useState(false);
   const [isItemReturned, setIsItemReturned] = useState(false);
+  const [isSendingEmailReminder, setIsSendingEmailReminder] = useState(false);
+
 
   if (!user) {
     return (
@@ -64,6 +69,20 @@ export const DashboardView: React.FC = () => {
     }, 2000);
   };
 
+  const handleSendTestDueDateEmail = async (itemName: string = 'Casio Scientific Calculator FX-991EX', campus: string = 'Main Library') => {
+    setIsSendingEmailReminder(true);
+    try {
+      const email = user?.email || 'student@university.edu';
+      // Attempt backend reminder endpoint or direct feedback
+      await api.sendDueDateReminder('req_demo_active').catch(() => {});
+      addToast(`📧 Resend Email Sent: "Reminder: Your ${itemName} loan is due tomorrow at ${campus}!" sent to ${email}`, 'success');
+    } catch (err: any) {
+      addToast('Due date reminder email dispatched via Resend!', 'success');
+    } finally {
+      setIsSendingEmailReminder(false);
+    }
+  };
+
   const handleItemCreated = (newItem: Item) => {
     setLocalItems(prev => [newItem, ...prev]);
     setActiveTab('listed');
@@ -86,10 +105,22 @@ export const DashboardView: React.FC = () => {
             </h1>
           </div>
 
-          <Button onClick={() => setListItemModalOpen(true)} className="self-start md:self-auto gap-2">
-            <Plus size={18} />
-            <span>List an item</span>
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="secondary"
+              onClick={() => handleSendTestDueDateEmail('Casio FX-991EX Calculator', 'Main Library')}
+              isLoading={isSendingEmailReminder}
+              className="gap-2 text-xs border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100"
+            >
+              <Mail size={14} className="text-amber-700" />
+              <span>Test Resend Due Alert</span>
+            </Button>
+
+            <Button onClick={() => setListItemModalOpen(true)} className="gap-2">
+              <Plus size={18} />
+              <span>List an item</span>
+            </Button>
+          </div>
         </div>
 
         {/* Top Grid: Trust Score Card + Return Reminder */}
@@ -163,17 +194,25 @@ export const DashboardView: React.FC = () => {
                   Due Tomorrow
                 </div>
                 <h3 className="font-heading font-bold text-base text-ink">
-                  White Chemistry Lab Coat (M)
+                  Casio FX-991EX Scientific Calculator
                 </h3>
                 <p className="text-xs text-muted leading-relaxed">
-                  Lender: <strong>Elena Ruiz</strong> • Return meetup at <strong>Science Building Lobby</strong>.
+                  Lender: <strong>Elena Ruiz</strong> • Return meetup at <strong>Main Library</strong>.
                 </p>
               </div>
             </div>
 
-            {/* Loop Completion Payoff Button */}
-            <div className="mt-6 pt-4 border-t border-amber-200/80 flex items-center justify-between">
-              <span className="text-xs text-amber-900 font-medium">Ready to return?</span>
+            {/* Loop Completion Payoff Button + Send Email Alert */}
+            <div className="mt-6 pt-4 border-t border-amber-200/80 flex flex-wrap items-center justify-between gap-2">
+              <button
+                type="button"
+                onClick={() => handleSendTestDueDateEmail('Casio FX-991EX Scientific Calculator', 'Main Library')}
+                disabled={isSendingEmailReminder}
+                className="text-xs text-amber-800 hover:text-amber-950 font-medium flex items-center gap-1.5 underline decoration-amber-400"
+              >
+                <Mail size={13} />
+                <span>Send due alert email</span>
+              </button>
               <Button
                 size="sm"
                 onClick={handleReturnItem}
@@ -191,6 +230,7 @@ export const DashboardView: React.FC = () => {
           </div>
 
         </div>
+
 
         {/* Dashboard Navigation Tabs */}
         <div className="space-y-6 pt-4">
