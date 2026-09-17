@@ -246,6 +246,10 @@ class ApiClient {
   async exportDatabaseSnapshot(): Promise<any> {
     return this.request('/admin/export-database');
   }
+
+  async invokeSupabaseEngine(): Promise<any> {
+    return this.request('/admin/invoke-supabase', { method: 'POST' });
+  }
 }
 
 export const api = new ApiClient();

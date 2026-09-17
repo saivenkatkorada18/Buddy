@@ -176,4 +176,35 @@ router.get('/export-database', async (req: Request, res: Response) => {
   }
 });
 
+// POST /api/admin/invoke-supabase
+router.post('/invoke-supabase', async (req: Request, res: Response) => {
+  const startTime = Date.now();
+  try {
+    const { createClient } = await import('@supabase/supabase-js');
+    const client = createClient(
+      SUPABASE_PROJECT_URL,
+      SUPABASE_SERVICE_ROLE_KEY || SUPABASE_ANON_KEY
+    );
+
+    const { data: authData, error: authError } = await client.auth.getSession();
+    const latencyMs = Date.now() - startTime;
+
+    return res.json({
+      success: true,
+      invokedAt: new Date().toISOString(),
+      latencyMs,
+      endpoint: SUPABASE_PROJECT_URL,
+      authStatus: authError ? `Notice: ${authError.message}` : 'Online & Active',
+      keyType: SUPABASE_SERVICE_ROLE_KEY ? 'Service Role (Admin)' : 'Publishable',
+      status: 'Supabase client invoked successfully',
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      error: error?.message || 'Invocation failed',
+      latencyMs: Date.now() - startTime,
+    });
+  }
+});
+
 export default router;
