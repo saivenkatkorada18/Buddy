@@ -124,4 +124,7 @@ export type View =
   | 'how-it-works'
   | 'trust-safety'
   | 'dashboard'
+  | 'admin'
+  | 'admin-database'
   | 'not-found';
+

@@ -217,9 +217,39 @@ class ApiClient {
       body: JSON.stringify(data),
     });
   }
+
+  // --- Admin & Database Operations (Supabase + Prisma) ---
+  async getAdminStats(): Promise<any> {
+    return this.request('/admin/stats');
+  }
+
+  async getAdminUsers(): Promise<any[]> {
+    return this.request('/admin/users');
+  }
+
+  async getAdminItems(): Promise<any[]> {
+    return this.request('/admin/items');
+  }
+
+  async getAdminLoans(): Promise<any[]> {
+    return this.request('/admin/loans');
+  }
+
+  async toggleAdminItemAvailable(id: string): Promise<any> {
+    return this.request(`/admin/items/${id}/toggle-available`, { method: 'POST' });
+  }
+
+  async toggleAdminUserVerify(id: string): Promise<any> {
+    return this.request(`/admin/users/${id}/toggle-verify`, { method: 'POST' });
+  }
+
+  async exportDatabaseSnapshot(): Promise<any> {
+    return this.request('/admin/export-database');
+  }
 }
 
 export const api = new ApiClient();
+
 
 
 

@@ -6,6 +6,7 @@ import itemRoutes from './routes/items';
 import borrowRequestRoutes from './routes/borrowRequests';
 import userRoutes from './routes/users';
 import paymentRoutes from './routes/payments';
+import adminRoutes from './routes/admin';
 
 dotenv.config();
 
@@ -36,6 +37,8 @@ app.use('/api/items', itemRoutes);
 app.use('/api/borrow-requests', borrowRequestRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/admin', adminRoutes);
+
 
 
 // 404 handler

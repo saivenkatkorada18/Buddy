@@ -25,12 +25,13 @@ import {
   Zap,
   Mail,
   Send,
+  Database,
 } from 'lucide-react';
 import { Item } from '../types';
 import { api } from '../lib/api';
 
 export const DashboardView: React.FC = () => {
-  const { user, setListItemModalOpen, isListItemModalOpen, addToast, setAuthModalOpen, openPaymentModal } = useAppContext();
+  const { user, setListItemModalOpen, isListItemModalOpen, addToast, setAuthModalOpen, openPaymentModal, navigate } = useAppContext();
   const [activeTab, setActiveTab] = useState('borrowing');
 
   const [localItems, setLocalItems] = useState<Item[]>(mockItems);
@@ -105,7 +106,17 @@ export const DashboardView: React.FC = () => {
             </h1>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => navigate('admin-database')}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-heading font-bold bg-slate-900 hover:bg-slate-800 text-amber-300 border border-slate-700 shadow-sm transition-all"
+            >
+              <Database size={15} className="text-amber-400" />
+              <span>Supabase Database Engine</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            </button>
+
             <Button
               variant="secondary"
               onClick={() => handleSendTestDueDateEmail('Casio FX-991EX Calculator', 'Main Library')}
@@ -121,6 +132,7 @@ export const DashboardView: React.FC = () => {
               <span>List an item</span>
             </Button>
           </div>
+
         </div>
 
         {/* Top Grid: Trust Score Card + Return Reminder */}

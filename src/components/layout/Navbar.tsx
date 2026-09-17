@@ -3,9 +3,10 @@ import { useAppContext } from '../../context/AppContext';
 import { Logo } from '../brand/Logo';
 import { Button } from '../ui/Button';
 import { Avatar } from '../ui/Avatar';
-import { Menu, X, PlusCircle, LayoutDashboard, Shield, Compass, HelpCircle, CreditCard } from 'lucide-react';
+import { Menu, X, PlusCircle, LayoutDashboard, Shield, Compass, HelpCircle, CreditCard, Database } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useFocusTrap } from '../../lib/motion';
+
 
 export const Navbar: React.FC = () => {
   const { currentView, navigate, isLoggedIn, user, setAuthModalOpen, setListItemModalOpen, openPaymentModal } = useAppContext();
@@ -81,7 +82,23 @@ export const Navbar: React.FC = () => {
           </nav>
 
           {/* Desktop Actions */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-2.5">
+            {/* SuperAdmin Database Portal Button */}
+            <button
+              onClick={() => navigate('admin-database')}
+              className={cn(
+                'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-heading font-bold transition-all shadow-xs border',
+                currentView === 'admin-database' || currentView === 'admin'
+                  ? 'bg-slate-950 text-amber-300 border-amber-400/50 shadow-md shadow-amber-500/10'
+                  : 'bg-slate-900 hover:bg-slate-800 text-amber-300 border-slate-700'
+              )}
+              title="SuperAdmin Database & Supabase Cloud Engine"
+            >
+              <Database size={14} className="text-amber-400" />
+              <span>Supabase DB</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            </button>
+
             {/* Demo Payment Trigger Button */}
             <button
               onClick={() => openPaymentModal({ purpose: 'Campus Escrow & Student Pass Demo' })}
@@ -90,7 +107,6 @@ export const Navbar: React.FC = () => {
             >
               <CreditCard size={14} className="text-amber-600" />
               <span>Demo Pay</span>
-              <span className="bg-amber-200/90 text-amber-950 px-1.5 py-0.2 rounded-md text-[10px]">Test</span>
             </button>
 
             <Button
@@ -136,10 +152,11 @@ export const Navbar: React.FC = () => {
               </div>
             ) : (
               <Button size="sm" onClick={() => setAuthModalOpen(true)}>
-                Get started
+                Sign in
               </Button>
             )}
           </div>
+
 
           {/* Mobile Hamburger Button */}
           <button
@@ -200,6 +217,22 @@ export const Navbar: React.FC = () => {
                   </button>
                 ))}
 
+                <button
+                  onClick={() => {
+                    navigate('admin-database');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={cn(
+                    'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left font-heading font-semibold text-base transition-colors',
+                    currentView === 'admin-database'
+                      ? 'bg-amber-50 text-amber-900 border border-amber-200'
+                      : 'text-amber-700 bg-amber-50/50 hover:bg-amber-100/50'
+                  )}
+                >
+                  <Database size={18} className="text-amber-600" />
+                  <span>Supabase Database Engine</span>
+                </button>
+
                 {isLoggedIn && (
                   <button
                     onClick={() => {
@@ -219,6 +252,7 @@ export const Navbar: React.FC = () => {
                 )}
               </div>
             </div>
+
 
             {/* Mobile Footer CTAs */}
             <div className="pt-6 border-t border-line space-y-3">

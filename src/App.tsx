@@ -13,6 +13,7 @@ import { ItemDetailView } from './views/ItemDetailView';
 import { HowItWorksView } from './views/HowItWorksView';
 import { TrustSafetyView } from './views/TrustSafetyView';
 import { DashboardView } from './views/DashboardView';
+import { AdminDatabaseView } from './views/AdminDatabaseView';
 import { NotFoundView } from './views/NotFoundView';
 
 const AppContent: React.FC = () => {
@@ -33,11 +34,15 @@ const AppContent: React.FC = () => {
         return <TrustSafetyView />;
       case 'dashboard':
         return <DashboardView />;
+      case 'admin':
+      case 'admin-database':
+        return <AdminDatabaseView />;
       case 'not-found':
       default:
         return <NotFoundView />;
     }
   };
+
 
   return (
     <div className="flex flex-col min-h-screen bg-cream text-ink">
