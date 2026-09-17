@@ -7,7 +7,6 @@ import { lenders } from '../data/users';
 import { Button } from '../components/ui/Button';
 import { Tabs } from '../components/ui/Tabs';
 import { Badge } from '../components/ui/Badge';
-import { ListItemModal } from '../components/dashboard/ListItemModal';
 import { ScoreRing } from '../components/illustrations/ScoreRing';
 import { LoopMark } from '../components/brand/LoopMark';
 import { calculateTrustScore } from '../lib/trust';
@@ -459,14 +458,7 @@ export const DashboardView: React.FC = () => {
           )}
 
         </div>
-
       </div>
-
-      <ListItemModal
-        isOpen={isListItemModalOpen}
-        onClose={() => setListItemModalOpen(false)}
-        onItemCreated={handleItemCreated}
-      />
     </div>
   );
 };

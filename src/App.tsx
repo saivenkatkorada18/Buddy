@@ -4,6 +4,7 @@ import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { Toast } from './components/ui/Toast';
 import { AuthModal } from './components/auth/AuthModal';
+import { ListItemModal } from './components/dashboard/ListItemModal';
 import { RazorpayCheckoutModal } from './components/payment/RazorpayCheckoutModal';
 
 // Views
@@ -17,7 +18,16 @@ import { AdminDatabaseView } from './views/AdminDatabaseView';
 import { NotFoundView } from './views/NotFoundView';
 
 const AppContent: React.FC = () => {
-  const { currentView, toasts, removeToast, isPaymentModalOpen, closePaymentModal, paymentModalOptions } = useAppContext();
+  const {
+    currentView,
+    toasts,
+    removeToast,
+    isPaymentModalOpen,
+    closePaymentModal,
+    paymentModalOptions,
+    isListItemModalOpen,
+    setListItemModalOpen,
+  } = useAppContext();
 
   const renderView = () => {
     switch (currentView) {
@@ -56,6 +66,10 @@ const AppContent: React.FC = () => {
 
       {/* Global Modals */}
       <AuthModal />
+      <ListItemModal
+        isOpen={isListItemModalOpen}
+        onClose={() => setListItemModalOpen(false)}
+      />
       <RazorpayCheckoutModal
         isOpen={isPaymentModalOpen}
         onClose={closePaymentModal}
