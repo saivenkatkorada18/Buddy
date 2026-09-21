@@ -40,12 +40,27 @@ export const AuthPanel: React.FC<AuthPanelProps> = ({
   const { addToast } = useAppContext();
   const [tab, setTab] = useState<'login' | 'signup'>(initialTab);
 
-  const handleFillSuperAdmin = () => {
+  const handleFillSuperAdmin = async () => {
     setTab('login');
-    setEmail('borrowbuddy@superadmin.in');
-    setPassword('ChangeThePassword@123!');
+    const adminEmail = 'borrowbuddy@superadmin.in';
+    const adminPass = 'ChangeThePassword@123!';
+    setEmail(adminEmail);
+    setPassword(adminPass);
     setErrors({});
-    addToast('⚡ SuperAdmin credentials auto-filled! Click Log in.', 'info');
+    setIsSubmitting(true);
+
+    try {
+      const res = await signIn(adminEmail, adminPass, true);
+      setIsSubmitting(false);
+      setIsSuccess(true);
+      addToast('⚡ SuperAdmin authenticated successfully!', 'success');
+      setTimeout(() => {
+        onSuccess(res.user);
+      }, 280);
+    } catch (err: any) {
+      setIsSubmitting(false);
+      addToast(err?.message || 'Authentication error', 'error');
+    }
   };
 
   // Form State
@@ -393,7 +408,7 @@ export const AuthPanel: React.FC<AuthPanelProps> = ({
             id="auth-email"
             type="email"
             name="email"
-            autoComplete="email"
+            autoComplete="off"
             placeholder="e.g. alex.moreau@univ.edu"
             value={email}
             onChange={(e) => handleChange('email', e.target.value, setEmail)}
@@ -440,7 +455,7 @@ export const AuthPanel: React.FC<AuthPanelProps> = ({
               id="auth-password"
               type={showPassword ? 'text' : 'password'}
               name="password"
-              autoComplete={tab === 'login' ? 'current-password' : 'new-password'}
+              autoComplete="off"
               placeholder="Minimum 8 characters"
               value={password}
               onChange={(e) => handleChange('password', e.target.value, setPassword)}
