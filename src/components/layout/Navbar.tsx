@@ -189,6 +189,18 @@ export const Navbar: React.FC = () => {
                 Sign in
               </Button>
             )}
+
+            {isLoggedIn && user && (
+              <button
+                type="button"
+                onClick={logout}
+                className="hidden lg:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-heading font-bold text-red-600 hover:text-red-700 bg-red-50/70 hover:bg-red-100/80 border border-red-200/60 transition-all"
+                title="Log out and return to Welcome Gate"
+              >
+                <LogOut size={13} />
+                <span>Log out</span>
+              </button>
+            )}
           </div>
 
 
