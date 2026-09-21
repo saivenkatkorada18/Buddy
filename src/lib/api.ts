@@ -150,26 +150,10 @@ class ApiClient {
     receipt?: string;
     notes?: Record<string, any>;
   }): Promise<{ success: boolean; order: any; keyId: string }> {
-    try {
-      return await this.request<{ success: boolean; order: any; keyId: string }>('/payments/create-order', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-    } catch (err) {
-      console.warn('Backend order request fallback:', err);
-      const amountPaise = Math.round(data.amount * 100);
-      return {
-        success: true,
-        order: {
-          id: `order_live_${Date.now()}`,
-          amount: amountPaise,
-          currency: data.currency || 'INR',
-          status: 'created',
-          notes: data.notes || {},
-        },
-        keyId: 'rzp_test_TedH4X1zyYU1uJ',
-      };
-    }
+    return await this.request<{ success: boolean; order: any; keyId: string }>('/payments/create-order', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   }
 
   async verifyPayment(data: {

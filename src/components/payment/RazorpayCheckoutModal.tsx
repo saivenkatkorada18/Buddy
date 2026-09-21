@@ -393,7 +393,7 @@ export const RazorpayCheckoutModal: React.FC<RazorpayCheckoutModalProps> = ({
                   Razorpay Test Gateway
                 </div>
                 <div className="text-[11px] text-indigo-800 font-mono">
-                  Key: rzp_test_Tcy4izS0j1853r
+                  Key: rzp_test_TedH4X1zyYU1uJ
                 </div>
               </div>
             </div>

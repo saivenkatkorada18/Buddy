@@ -368,7 +368,7 @@ export const DashboardView: React.FC = () => {
                       <span className="text-xs font-bold text-amber-900">Razorpay Test Gateway</span>
                       <span className="text-[10px] bg-amber-200 text-amber-950 font-bold px-2 py-0.5 rounded-full">Test Mode</span>
                     </div>
-                    <div className="text-xs text-amber-800 mt-1 font-mono">Key: rzp_test_Tcy4izS0j1853r</div>
+                    <div className="text-xs text-amber-800 mt-1 font-mono">Key: rzp_test_TedH4X1zyYU1uJ</div>
                   </div>
                   <Button
                     size="sm"

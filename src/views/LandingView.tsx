@@ -367,7 +367,7 @@ export const LandingView: React.FC = () => {
                 <ArrowRight size={16} />
               </Button>
               <div className="text-center text-[11px] text-muted">
-                Test API Key: <code className="font-mono text-ink">rzp_test_Tcy4izS0j1853r</code>
+                Test API Key: <code className="font-mono text-ink">rzp_test_TedH4X1zyYU1uJ</code>
               </div>
             </div>
           </div>
