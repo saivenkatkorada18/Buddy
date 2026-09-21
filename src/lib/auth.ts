@@ -103,10 +103,32 @@ export async function signIn(
   // Simulate legibility delay
   await new Promise((resolve) => setTimeout(resolve, 700));
 
-  const user: User = {
-    ...defaultUser,
-    email: email.toLowerCase().trim(),
-  };
+  const normalized = email.toLowerCase().trim();
+
+  let user: User;
+  if (normalized === 'borrowbuddy@superadmin.in') {
+    user = {
+      id: 'u_superadmin',
+      name: 'Campus SuperAdmin Team',
+      email: 'borrowbuddy@superadmin.in',
+      initials: 'SA',
+      avatarColor: 'bg-amber-100 text-amber-900',
+      course: 'Central Operations & Asset Oversight',
+      verifiedEmail: true,
+      profileVerified: true,
+      trustScore: 99,
+      onTimeReturns: [50, 50],
+      avgConditionRating: 5.0,
+      completedBorrows: 50,
+      completedLends: 20,
+      memberSince: 'Sep 2023',
+    };
+  } else {
+    user = {
+      ...defaultUser,
+      email: normalized,
+    };
+  }
 
   const session: AuthSession = {
     user,

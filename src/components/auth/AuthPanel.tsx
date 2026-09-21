@@ -18,6 +18,7 @@ import {
   ShieldCheck,
   AlertCircle,
   Sparkles,
+  Zap,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -38,6 +39,14 @@ export const AuthPanel: React.FC<AuthPanelProps> = ({
 }) => {
   const { addToast } = useAppContext();
   const [tab, setTab] = useState<'login' | 'signup'>(initialTab);
+
+  const handleFillSuperAdmin = () => {
+    setTab('login');
+    setEmail('borrowbuddy@superadmin.in');
+    setPassword('ChangeThePassword@123!');
+    setErrors({});
+    addToast('⚡ SuperAdmin credentials auto-filled! Click Log in.', 'info');
+  };
 
   // Form State
   const [email, setEmail] = useState('');
@@ -300,6 +309,20 @@ export const AuthPanel: React.FC<AuthPanelProps> = ({
       <div aria-live="assertive" className="sr-only">
         {submitErrorAnnouncement}
       </div>
+
+      {/* 1-Click SuperAdmin Quick-Fill Badge */}
+      {tab === 'login' && (
+        <div className="flex items-center justify-end pb-1">
+          <button
+            type="button"
+            onClick={handleFillSuperAdmin}
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-heading font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/80 shadow-2xs transition-all hover:scale-102 focus-visible:ring-2 focus-visible:ring-indigo-600"
+          >
+            <Zap size={13} className="text-amber-600 fill-amber-500" />
+            <span>⚡ 1-Click SuperAdmin Fill</span>
+          </button>
+        </div>
+      )}
 
       {/* Form Container with Smooth Height Transition */}
       <form
