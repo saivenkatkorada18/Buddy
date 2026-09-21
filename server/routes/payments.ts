@@ -7,8 +7,8 @@ import { optionalAuth, AuthRequest } from '../middleware/auth';
 
 const router = Router();
 
-const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID || 'rzp_test_Tcy4izS0j1853r';
-const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || 'JG5vlbhzGCcDf8uqWuTAJVxo';
+const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID || '';
+const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || '';
 
 // Initialize Razorpay instance
 let razorpayInstance: Razorpay | null = null;

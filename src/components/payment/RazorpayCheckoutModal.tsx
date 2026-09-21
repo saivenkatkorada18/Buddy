@@ -166,7 +166,7 @@ export const RazorpayCheckoutModal: React.FC<RazorpayCheckoutModalProps> = ({
       }
 
       const { order, keyId } = orderRes;
-      const effectiveKey = keyId || (import.meta as any).env?.VITE_RAZORPAY_KEY_ID || 'rzp_test_Tcy4izS0j1853r';
+      const effectiveKey = keyId || (import.meta as any).env?.VITE_RAZORPAY_KEY_ID || '';
 
       // 3. Configure Razorpay Options
       const options: RazorpayOptions = {
