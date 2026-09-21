@@ -173,6 +173,54 @@ h1, h2, h3, h4, h5, h6 {
   animation: shimmer-sweep 1.5s infinite;
 }
 
+/* Shimmer & Ambient Animations */
+@keyframes ambient-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes loop-draw {
+  0% { stroke-dashoffset: 240; }
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes letter-rise {
+  0% { opacity: 0; transform: translateY(14px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-rise {
+  0% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes checkmark-draw {
+  0% { stroke-dashoffset: 32; }
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes gate-slide-up {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-100%); }
+}
+
+@keyframes gate-slide-down {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(100%); }
+}
+
+.animate-ambient-spin {
+  animation: ambient-spin 8s linear infinite;
+}
+
+.animate-gate-exit-up {
+  animation: gate-slide-up 420ms var(--ease-in-out) forwards;
+}
+
+.animate-gate-exit-down {
+  animation: gate-slide-down 420ms var(--ease-in-out) forwards;
+}
+
 /* Non-Negotiable Reduced Motion Guard */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -182,3 +230,4 @@ h1, h2, h3, h4, h5, h6 {
     scroll-behavior: auto !important;
   }
 }
+

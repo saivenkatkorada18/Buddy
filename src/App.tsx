@@ -8,6 +8,7 @@ import { ListItemModal } from './components/dashboard/ListItemModal';
 import { RazorpayCheckoutModal } from './components/payment/RazorpayCheckoutModal';
 
 // Views
+import { WelcomeGateView } from './views/WelcomeGateView';
 import { LandingView } from './views/LandingView';
 import { ExploreView } from './views/ExploreView';
 import { ItemDetailView } from './views/ItemDetailView';
@@ -22,6 +23,8 @@ const AppContent: React.FC = () => {
     currentView,
     toasts,
     removeToast,
+    isGateOpen,
+    resolveGate,
     isPaymentModalOpen,
     closePaymentModal,
     paymentModalOptions,
@@ -53,9 +56,13 @@ const AppContent: React.FC = () => {
     }
   };
 
-
   return (
     <div className="flex flex-col min-h-screen bg-cream text-ink">
+      {/* Welcome Gate Guard */}
+      {isGateOpen && (
+        <WelcomeGateView onResolved={resolveGate} />
+      )}
+
       <Navbar />
 
       <main className="flex-grow">
@@ -75,7 +82,6 @@ const AppContent: React.FC = () => {
         onClose={closePaymentModal}
         initialOptions={paymentModalOptions}
       />
-
 
       {/* Toast Notification Container */}
       <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none w-full max-w-sm px-4 sm:px-0 sm:right-6 sm:bottom-6">

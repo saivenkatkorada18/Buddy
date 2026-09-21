@@ -3,6 +3,7 @@ import { User, FilterState, View, Item, BorrowRequest } from '../types';
 import { currentUser as mockCurrentUser } from '../data/users';
 import { items as defaultMockItems } from '../data/items';
 import { api } from '../lib/api';
+import { getSession, signOut, saveSession } from '../lib/auth';
 
 export interface ToastMessage {
   id: string;
@@ -19,11 +20,15 @@ export interface PaymentModalOptions {
 }
 
 interface AppContextType {
-  // Navigation
+  // Navigation & Gate
   currentView: View;
   navigate: (view: View, itemId?: string) => void;
   selectedItemId: string | null;
   setSelectedItemId: (id: string | null) => void;
+  isGateOpen: boolean;
+  setIsGateOpen: (open: boolean) => void;
+  isGuest: boolean;
+  resolveGate: (user: User, isGuest?: boolean) => void;
 
   // Catalog State
   itemsList: Item[];
@@ -74,11 +79,18 @@ const defaultFilters: FilterState = {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  // Check session storage on initial load
+  const existingSession = getSession();
+
+  const [user, setUser] = useState<User | null>(existingSession ? existingSession.user : null);
+  const [isGuest, setIsGuest] = useState<boolean>(existingSession ? !!existingSession.isGuest : false);
+  const [isGateOpen, setIsGateOpen] = useState<boolean>(!existingSession);
+  const [intendedView, setIntendedView] = useState<View | null>(null);
+
   const [currentView, setCurrentView] = useState<View>('landing');
   const [selectedItemId, setSelectedItemId] = useState<string | null>('i_1');
   const [itemsList, setItemsList] = useState<Item[]>(defaultMockItems);
 
-  const [user, setUser] = useState<User | null>(mockCurrentUser); // logged in as Alex Moreau by default for demo
   const [isAuthModalOpen, setAuthModalOpen] = useState(false);
   const [isListItemModalOpen, setListItemModalOpen] = useState(false);
   const [isBorrowModalOpen, setBorrowModalOpen] = useState(false);
@@ -96,7 +108,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (serverItems && serverItems.length > 0) {
         setItemsList(serverItems);
       }
-    } catch (e) {
+    } catch {
       // Graceful fallback to rich offline dataset if backend is offline
     }
   };
@@ -110,11 +122,32 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const navigate = (view: View, itemId?: string) => {
-    setCurrentView(view);
+    if (isGateOpen && !user) {
+      setIntendedView(view);
+    } else {
+      setCurrentView(view);
+    }
+
     if (itemId !== undefined) {
       setSelectedItemId(itemId);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const resolveGate = (resolvedUser: User, asGuest = false) => {
+    setUser(resolvedUser);
+    setIsGuest(asGuest);
+    setIsGateOpen(false);
+
+    if (intendedView) {
+      setCurrentView(intendedView);
+      setIntendedView(null);
+    } else {
+      setCurrentView('landing');
+    }
+
+    const greetingName = asGuest ? 'Guest' : resolvedUser.name.split(' ')[0];
+    addToast(`Welcome to BorrowBuddy, ${greetingName}.`, 'success');
   };
 
   const openPaymentModal = (options?: PaymentModalOptions) => {
@@ -131,7 +164,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     try {
       const { user: serverUser } = await api.login(email, pass);
       setUser(serverUser);
+      setIsGuest(false);
+      setIsGateOpen(false);
       setAuthModalOpen(false);
+      saveSession({ user: serverUser, isGuest: false, loggedInAt: new Date().toISOString() });
       addToast(`Welcome back, ${serverUser.name}!`, 'success');
       return true;
     } catch (err: any) {
@@ -141,15 +177,22 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const login = (customUser?: User) => {
-    setUser(customUser || mockCurrentUser);
+    const activeUser = customUser || mockCurrentUser;
+    setUser(activeUser);
+    setIsGuest(false);
+    setIsGateOpen(false);
     setAuthModalOpen(false);
+    saveSession({ user: activeUser, isGuest: false, loggedInAt: new Date().toISOString() });
   };
 
   const logout = () => {
+    signOut();
     api.clearToken();
     setUser(null);
-    navigate('landing');
-    addToast('You have been logged out.', 'info');
+    setIsGuest(false);
+    setIsGateOpen(true);
+    setCurrentView('landing');
+    addToast('Signed out.', 'info');
   };
 
   const addToast = (message: string, type: 'success' | 'error' | 'info' = 'success', duration = 4000) => {
@@ -168,6 +211,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         navigate,
         selectedItemId,
         setSelectedItemId,
+        isGateOpen,
+        setIsGateOpen,
+        isGuest,
+        resolveGate,
         itemsList,
         refreshItems,
         addItemToList,

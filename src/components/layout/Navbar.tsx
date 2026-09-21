@@ -3,18 +3,31 @@ import { useAppContext } from '../../context/AppContext';
 import { Logo } from '../brand/Logo';
 import { Button } from '../ui/Button';
 import { Avatar } from '../ui/Avatar';
-import { Menu, X, PlusCircle, LayoutDashboard, Shield, Compass, HelpCircle, CreditCard, Database } from 'lucide-react';
+import { Menu, X, PlusCircle, LayoutDashboard, Shield, Compass, HelpCircle, CreditCard, Database, LogOut, ChevronDown } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useFocusTrap } from '../../lib/motion';
 
-
 export const Navbar: React.FC = () => {
-  const { currentView, navigate, isLoggedIn, user, setAuthModalOpen, setListItemModalOpen, openPaymentModal } = useAppContext();
+  const { currentView, navigate, isLoggedIn, user, logout, setAuthModalOpen, setListItemModalOpen, openPaymentModal } = useAppContext();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   useFocusTrap(isMobileMenuOpen, drawerRef);
+
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+    if (isUserMenuOpen) {
+      document.addEventListener('click', handleOutsideClick);
+    }
+    return () => document.removeEventListener('click', handleOutsideClick);
+  }, [isUserMenuOpen]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -111,28 +124,65 @@ export const Navbar: React.FC = () => {
 
 
             {isLoggedIn && user ? (
-              <div
-                role="button"
-                tabIndex={0}
-                onClick={() => navigate('dashboard')}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    navigate('dashboard');
-                  }
-                }}
-                className={cn(
-                  'flex items-center gap-2.5 p-1.5 pr-3 rounded-2xl border transition-all cursor-pointer select-none focus-visible:ring-2 focus-visible:ring-indigo-600',
-                  currentView === 'dashboard'
-                    ? 'bg-indigo-50 border-indigo-200'
-                    : 'bg-paper border-line hover:border-indigo-200'
+              <div ref={userMenuRef} className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  aria-expanded={isUserMenuOpen}
+                  aria-haspopup="true"
+                  className={cn(
+                    'flex items-center gap-2.5 p-1.5 pr-2.5 rounded-2xl border transition-all select-none focus-visible:ring-2 focus-visible:ring-indigo-600',
+                    currentView === 'dashboard' || isUserMenuOpen
+                      ? 'bg-indigo-50 border-indigo-200 shadow-xs'
+                      : 'bg-paper border-line hover:border-indigo-200'
+                  )}
+                >
+                  <Avatar initials={user.initials} colorClass={user.avatarColor} size="sm" />
+                  <div className="text-left leading-tight hidden sm:block">
+                    <div className="text-xs font-heading font-bold text-ink">{user.name.split(' ')[0]}</div>
+                    <div className="text-[11px] font-mono text-teal-700 font-semibold">{user.trustScore} Trust</div>
+                  </div>
+                  <ChevronDown size={14} className={cn('text-muted transition-transform duration-180', isUserMenuOpen && 'rotate-180')} />
+                </button>
+
+                {/* Dropdown Menu */}
+                {isUserMenuOpen && (
+                  <div
+                    className="absolute right-0 mt-2 w-56 bg-paper rounded-2xl border border-line shadow-float p-1.5 z-50 animate-card-deal"
+                    role="menu"
+                  >
+                    <div className="px-3 py-2 border-b border-line/60 mb-1">
+                      <div className="text-xs font-heading font-bold text-ink truncate">{user.name}</div>
+                      <div className="text-[11px] text-muted truncate">{user.course || 'Student Member'}</div>
+                    </div>
+
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        setIsUserMenuOpen(false);
+                        navigate('dashboard');
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-heading font-semibold text-ink hover:bg-indigo-50 hover:text-indigo-950 transition-colors text-left"
+                    >
+                      <LayoutDashboard size={14} className="text-indigo-600" />
+                      <span>Dashboard</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        setIsUserMenuOpen(false);
+                        logout();
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-heading font-semibold text-red-600 hover:bg-red-50 transition-colors text-left"
+                    >
+                      <LogOut size={14} />
+                      <span>Log out</span>
+                    </button>
+                  </div>
                 )}
-              >
-                <Avatar initials={user.initials} colorClass={user.avatarColor} size="sm" />
-                <div className="text-left leading-tight">
-                  <div className="text-xs font-heading font-bold text-ink">{user.name.split(' ')[0]}</div>
-                  <div className="text-[11px] font-mono text-teal-700 font-semibold">{user.trustScore} Trust</div>
-                </div>
               </div>
             ) : (
               <Button size="sm" onClick={() => setAuthModalOpen(true)}>
@@ -261,12 +311,26 @@ export const Navbar: React.FC = () => {
                   Get started
                 </Button>
               ) : (
-                <div className="p-3 bg-cream rounded-2xl border border-line flex items-center gap-3">
-                  <Avatar initials={user?.initials || 'ST'} colorClass={user?.avatarColor || 'bg-indigo-100 text-indigo-700'} size="md" />
-                  <div>
-                    <div className="font-heading font-bold text-sm text-ink">{user?.name}</div>
-                    <div className="text-xs text-muted">{user?.course}</div>
+                <div className="space-y-2">
+                  <div className="p-3 bg-cream rounded-2xl border border-line flex items-center gap-3">
+                    <Avatar initials={user?.initials || 'ST'} colorClass={user?.avatarColor || 'bg-indigo-100 text-indigo-700'} size="md" />
+                    <div className="truncate">
+                      <div className="font-heading font-bold text-sm text-ink truncate">{user?.name}</div>
+                      <div className="text-xs text-muted truncate">{user?.course}</div>
+                    </div>
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      logout();
+                    }}
+                    className="w-full flex items-center justify-center gap-2 py-2 text-xs font-heading font-bold text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                  >
+                    <LogOut size={14} />
+                    <span>Log out</span>
+                  </button>
                 </div>
               )}
             </div>
