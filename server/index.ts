@@ -50,7 +50,12 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   res.status(500).json({ error: 'Internal Server Error', message: err.message });
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`🚀 BorrowBuddy REST API Server running at http://localhost:${PORT}`);
   console.log(`📋 Health check available at http://localhost:${PORT}/api/health`);
 });
+
+// Keep event loop active
+setInterval(() => {}, 60000);
+
+export default app;
