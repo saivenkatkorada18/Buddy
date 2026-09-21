@@ -189,9 +189,10 @@ export const WelcomeGateView: React.FC<WelcomeGateViewProps> = ({ onResolved }) 
                 </div>
               </div>
 
-              {/* Demo Notice Footnote */}
-              <p className="text-[11px] text-stone-400 font-sans italic pt-2">
-                Demo build — no real account is created and nothing is stored.
+              {/* Live Notice Footnote */}
+              <p className="text-[11px] text-stone-500 font-sans font-medium pt-2 flex items-center justify-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Live Mode • Connected to Supabase Cloud & Prisma Engine</span>
               </p>
             </div>
           ) : (

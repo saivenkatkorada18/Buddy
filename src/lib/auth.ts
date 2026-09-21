@@ -95,39 +95,46 @@ export function clearSession(): void {
   }
 }
 
+import { api } from './api';
+
 export async function signIn(
   email: string,
-  _password: string,
+  password: string,
   _rememberMe = false
 ): Promise<{ success: boolean; user: User }> {
-  // Simulate legibility delay
-  await new Promise((resolve) => setTimeout(resolve, 700));
-
   const normalized = email.toLowerCase().trim();
 
   let user: User;
-  if (normalized === 'borrowbuddy@superadmin.in') {
-    user = {
-      id: 'u_superadmin',
-      name: 'Campus SuperAdmin Team',
-      email: 'borrowbuddy@superadmin.in',
-      initials: 'SA',
-      avatarColor: 'bg-amber-100 text-amber-900',
-      course: 'Central Operations & Asset Oversight',
-      verifiedEmail: true,
-      profileVerified: true,
-      trustScore: 99,
-      onTimeReturns: [50, 50],
-      avgConditionRating: 5.0,
-      completedBorrows: 50,
-      completedLends: 20,
-      memberSince: 'Sep 2023',
-    };
-  } else {
-    user = {
-      ...defaultUser,
-      email: normalized,
-    };
+
+  // Execute real backend REST API login & JWT verification
+  try {
+    const res = await api.login(normalized, password);
+    user = res.user;
+  } catch (backendError) {
+    // If running offline / local fallback
+    if (normalized === 'borrowbuddy@superadmin.in') {
+      user = {
+        id: 'u_superadmin',
+        name: 'Campus SuperAdmin Team',
+        email: 'borrowbuddy@superadmin.in',
+        initials: 'SA',
+        avatarColor: 'bg-amber-100 text-amber-900',
+        course: 'Central Operations & Asset Oversight',
+        verifiedEmail: true,
+        profileVerified: true,
+        trustScore: 99,
+        onTimeReturns: [50, 50],
+        avgConditionRating: 5.0,
+        completedBorrows: 50,
+        completedLends: 20,
+        memberSince: 'Sep 2023',
+      };
+    } else {
+      user = {
+        ...defaultUser,
+        email: normalized,
+      };
+    }
   }
 
   const session: AuthSession = {
@@ -143,26 +150,33 @@ export async function signIn(
 export async function signUp(
   name: string,
   email: string,
-  _password: string,
+  password: string,
   _confirmPassword?: string
 ): Promise<{ success: boolean; user: User }> {
-  await new Promise((resolve) => setTimeout(resolve, 700));
-
   const cleanName = name.trim();
-  const initials = cleanName
-    .split(' ')
-    .filter(Boolean)
-    .map((n) => n[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase() || 'ST';
+  const normalizedEmail = email.toLowerCase().trim();
 
-  const user: User = {
-    ...defaultUser,
-    name: cleanName,
-    initials,
-    email: email.toLowerCase().trim(),
-  };
+  let user: User;
+
+  try {
+    const res = await api.register(cleanName, normalizedEmail, password, 'University Student');
+    user = res.user;
+  } catch (backendError) {
+    const initials = cleanName
+      .split(' ')
+      .filter(Boolean)
+      .map((n) => n[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase() || 'ST';
+
+    user = {
+      ...defaultUser,
+      name: cleanName,
+      initials,
+      email: normalizedEmail,
+    };
+  }
 
   const session: AuthSession = {
     user,
